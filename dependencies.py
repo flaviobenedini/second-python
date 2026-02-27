@@ -1,7 +1,6 @@
 from fastapi import Depends, HTTPException
-from auth.models import db
-from sqlalchemy.orm import sessionmaker, Session
-from auth.models import User
+from models import db
+from sqlalchemy.orm import sessionmaker
 from main import oauth2_schema, SECRET_KEY, ALGORITHM
 from jose import jwt, JWTError
 
@@ -16,6 +15,10 @@ def dbSession():
 def validateToken(token: str = Depends(oauth2_schema)):
     try:
         dic_info = jwt.decode(token, SECRET_KEY, ALGORITHM)
+        if dic_info.get("admin") == "True":
+            dic_info["admin"] = True
+        else:
+            dic_info["admin"] = False
         user = {"id": int(dic_info.get("sub")), "name": dic_info.get("name"), "admin": dic_info.get("admin")}
     except JWTError:
         raise HTTPException(status_code=401, detail="Acesso Negado, verifique a validade do token")

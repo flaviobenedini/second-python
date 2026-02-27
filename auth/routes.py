@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from auth.models import User
+from users.models import User
 from auth.schemas import UserSchema, LoginSchema
 from sqlalchemy.orm import Session
 from dependencies import dbSession, validateToken
