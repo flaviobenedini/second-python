@@ -1,8 +1,9 @@
 from fastapi import Depends, HTTPException
 from models import db
 from sqlalchemy.orm import sessionmaker
-from main import oauth2_schema, SECRET_KEY, ALGORITHM
+from main import oauth2_schema, SECRET_KEY, ALGORITHM, GMAIL_SMTP_SERVER, GMAIL_SMTP_PORT, GMAIL_USERNAME, GMAIL_PASSWORD
 from jose import jwt, JWTError
+import smtplib
 
 def dbSession():
     try:
@@ -25,3 +26,12 @@ def validateToken(token: str = Depends(oauth2_schema)):
     if not user:
         raise HTTPException(status_code=401, detail="Acesso Inválido")
     return user
+
+def emailSession():
+    try:
+        servidor_email = smtplib.SMTP(GMAIL_SMTP_SERVER, GMAIL_SMTP_PORT)
+        servidor_email.starttls()
+        servidor_email.login(GMAIL_USERNAME, GMAIL_PASSWORD)
+        yield servidor_email
+    finally:
+        servidor_email.quit()
